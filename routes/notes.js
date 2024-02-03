@@ -32,9 +32,11 @@ notes.post("/", (req, res) => {
     .then((notes) => {
         const {title, text} = req.body;
         if (title && text) {
-            // If the body is valid, add it to the existing notes and return
-            const newNote = {title, text};
+            // If the body is valid, create a new note
+            const newNote = {title, text, id: crypto.randomUUID()};
+            // Add it to the existing notes
             notes.push(newNote);
+            // And return the updated notes
             return notes;
         } else {
             // Else throw an error
@@ -45,8 +47,10 @@ notes.post("/", (req, res) => {
         // Write the updated notes to the file
         writeFile("./db/db.json", JSON.stringify(notes, null, 4)).then((err) => {
             if (err) {
+                // If there's an error, throw an error
                 throw new Error("Error writing note to file");
             } else {
+                // Else, return the notes
                 return notes;
             }
         })
