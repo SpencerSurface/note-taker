@@ -23,6 +23,7 @@ notes.post("/", (req, res) => {
     readFile("./db/db.json", "utf-8").then((data, err) => {
         if (err) {
             // If there's an error, throw an error
+            console.error(err);
             throw new Error("Error reading notes from file");
         } else {
             // Else, return the parsed notes
@@ -36,7 +37,7 @@ notes.post("/", (req, res) => {
             const newNote = {title, text, id: crypto.randomUUID()};
             // Add it to the existing notes
             notes.push(newNote);
-            // And return the updated notes
+            // Return the updated notes
             return notes;
         } else {
             // Else throw an error
@@ -48,12 +49,50 @@ notes.post("/", (req, res) => {
         writeFile("./db/db.json", JSON.stringify(notes, null, 4)).then((err) => {
             if (err) {
                 // If there's an error, throw an error
+                console.error(err);
                 throw new Error("Error writing note to file");
             } else {
                 // Else, return the notes
                 return notes;
             }
-        })
+        });
+    })
+    .then((notes) => res.json(notes))       // Respond with the updated notes
+    .catch((err) => console.error(err));    // If there's an error, console log it
+});
+
+// Add DELETE route for requesting to add a new note
+notes.delete("/:id", (req, res) => {
+    // Read the notes from the file
+    readFile("./db/db.json", "utf-8").then((data, err) => {
+        if (err) {
+            // If there's an error, throw an error
+            console.error(err);
+            throw new Error("Error reading notes from file");
+        } else {
+            // Else, return the parsed notes
+            return JSON.parse(data);
+        }
+    })
+    .then((notes) => {
+        const id = req.params.id;
+        // Remove the note corresponding to the given id from the existing notes, if it present
+        notes = notes.filter((note) => note.id != id);
+        // Return the updated notes
+        return notes;
+    })
+    .then((notes) => {
+        // Write the updated notes to the file
+        writeFile("./db/db.json", JSON.stringify(notes, null, 4)).then((err) => {
+            if (err) {
+                // If there's an error, throw an error
+                console.error(err);
+                throw new Error("Error writing note to file");
+            } else {
+                // Else, return the notes
+                return notes;
+            }
+        });
     })
     .then((notes) => res.json(notes))       // Respond with the updated notes
     .catch((err) => console.error(err));    // If there's an error, console log it
