@@ -18,14 +18,14 @@ app.use(express.static("public"));
 // Add API routes
 app.use("/api", api);
 
-// Add GET route for homepage
-app.get("/", (req, res) => 
-    res.sendFile(path.join(__dirname, "/public/index.html"))
-);
-
 // Add GET route for notes page
 app.get("/notes", (req, res) => 
     res.sendFile(path.join(__dirname, "/public/notes.html"))
+);
+
+// Add GET route for homepage
+app.get("*", (req, res) => 
+    res.sendFile(path.join(__dirname, "/public/index.html"))
 );
 
 // Bind app to port and start listening
