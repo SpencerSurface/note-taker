@@ -1,35 +1,19 @@
 // Import statements
 const notes = require("express").Router();
-const {readFile, writeFile} = require("fs/promises");
+const {readFromFile, writeToFile} = require("../helpers/fsHelpers");
 
 // Add GET route for requesting to view all the notes
 notes.get("/", (req, res) => {
-    // Read the notes from the file
-    readFile("./db/db.json", "utf-8").then((data, err) => {
-        if (err) {
-            // If there's an error, log an error message
-            console.error(err);
-            console.error("Error reading notes from file");
-        } else {
-            // Else, respond to the request with the notes
-            res.json(JSON.parse(data));
-        }
-    });
+    // Read the notes from the file, respond with the notes, catch errors
+    readFromFile("./db/db.json")
+    .then((notes) => res.json(notes))
+    .catch((err) => console.error(err));
 });
 
 // Add POST route for requesting to add a new note
 notes.post("/", (req, res) => {
     // Read the notes from the file
-    readFile("./db/db.json", "utf-8").then((data, err) => {
-        if (err) {
-            // If there's an error, throw an error
-            console.error(err);
-            throw new Error("Error reading notes from file");
-        } else {
-            // Else, return the parsed notes
-            return JSON.parse(data);
-        }
-    })
+    readFromFile("./db/db.json")
     .then((notes) => {
         const {title, text} = req.body;
         if (title && text) {
@@ -46,16 +30,7 @@ notes.post("/", (req, res) => {
     })
     .then((notes) => {
         // Write the updated notes to the file
-        writeFile("./db/db.json", JSON.stringify(notes, null, 4)).then((err) => {
-            if (err) {
-                // If there's an error, throw an error
-                console.error(err);
-                throw new Error("Error writing note to file");
-            } else {
-                // Else, return the notes
-                return notes;
-            }
-        });
+        writeToFile("./db/db.json", JSON.stringify(notes, null, 4))
     })
     .then((notes) => res.json(notes))       // Respond with the updated notes
     .catch((err) => console.error(err));    // If there's an error, console log it
@@ -64,16 +39,7 @@ notes.post("/", (req, res) => {
 // Add DELETE route for requesting to add a new note
 notes.delete("/:id", (req, res) => {
     // Read the notes from the file
-    readFile("./db/db.json", "utf-8").then((data, err) => {
-        if (err) {
-            // If there's an error, throw an error
-            console.error(err);
-            throw new Error("Error reading notes from file");
-        } else {
-            // Else, return the parsed notes
-            return JSON.parse(data);
-        }
-    })
+    readFromFile("./db/db.json")
     .then((notes) => {
         const id = req.params.id;
         // Remove the note corresponding to the given id from the existing notes, if it present
@@ -83,16 +49,7 @@ notes.delete("/:id", (req, res) => {
     })
     .then((notes) => {
         // Write the updated notes to the file
-        writeFile("./db/db.json", JSON.stringify(notes, null, 4)).then((err) => {
-            if (err) {
-                // If there's an error, throw an error
-                console.error(err);
-                throw new Error("Error writing note to file");
-            } else {
-                // Else, return the notes
-                return notes;
-            }
-        });
+        writeToFile("./db/db.json", JSON.stringify(notes, null, 4));
     })
     .then((notes) => res.json(notes))       // Respond with the updated notes
     .catch((err) => console.error(err));    // If there's an error, console log it
