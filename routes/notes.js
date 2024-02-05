@@ -18,6 +18,7 @@ notes.post("/", (req, res) => {
         const {title, text} = req.body;
         if (title && text) {
             // If the body is valid, create a new note
+            // crypto.randomUUID() guarantees a unique id
             const newNote = {title, text, id: crypto.randomUUID()};
             // Add it to the existing notes
             notes.push(newNote);
